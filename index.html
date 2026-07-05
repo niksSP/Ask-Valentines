@@ -1,0 +1,232 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>...</title>
+	<!-- Google Fonts: Poppins -->
+	<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+	<link rel="stylesheet" href="styles.css">
+	<!-- Fancy font for buttons -->
+	<link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+</head>
+<body>
+</head>
+<body>
+	<div class="center-message" id="messageBox">
+		<span class="line">Well this is unexpected.</span>
+		<span class="line">There should only be 2 websites.</span>
+		<span class="line">What could this possibly be...</span>
+	</div>
+	<button id="continueBtn" class="continue-btn">Continue</button>
+	<script>
+		// Show the button after 2.5 seconds
+		setTimeout(function() {
+			document.getElementById('continueBtn').classList.add('show');
+		}, 2500);
+
+		const messageBox = document.getElementById('messageBox');
+		const continueBtn = document.getElementById('continueBtn');
+		let page = 1;
+
+		continueBtn.addEventListener('click', function() {
+			if (page === 1) {
+				// Fade out message and button
+				messageBox.classList.add('fade-out');
+				continueBtn.classList.remove('show');
+				// After fade out, change content, fade in message, and fade in button after delay
+				setTimeout(function() {
+					messageBox.innerHTML = `
+						<span class="line">There's something on my mind lately.</span>
+						<span class="line">Welp while you're here,</span>
+						<span class="line">there's a question I want to ask...</span>
+					`;
+					messageBox.classList.remove('fade-out');
+					messageBox.classList.add('fade-in');
+					continueBtn.textContent = 'ask me';
+					// Remove fade-in after animation
+					setTimeout(function() {
+						messageBox.classList.remove('fade-in');
+					}, 500);
+					// Fade in button after 2.5s
+					setTimeout(function() {
+						continueBtn.classList.add('show');
+					}, 2500);
+				}, 500);
+				page = 2;
+			} else if (page === 2) {
+				// Fade out message, button, and body for third page
+				messageBox.classList.add('fade-out');
+				continueBtn.classList.remove('show');
+				document.body.classList.add('body-fade-out');
+				setTimeout(function() {
+					document.body.classList.remove('body-fade-out');
+					document.body.classList.add('gradient-bg', 'body-fade-in', 'music-page');
+					// Create the new layout container
+					messageBox.innerHTML = `
+					  <div class="music-player-outer">
+						<div class="main-split-container">
+							<div class="left-split">
+								<div class="left-upper-curve">
+									<img class="album-cover" src="Pictures/the way i love you.png" alt="The Way I Love You Album Cover">
+									<div class="song-title">The Way I Love You</div>
+									<div class="artist-name">Michal Leah</div>
+									<div class="progress-container">
+										<div class="progress-bar-bg">
+											<div class="progress-bar-fill" id="progressBarFill"></div>
+										</div>
+										<div class="progress-time">
+											<span id="currentTime">1:32</span> / <span id="duration">--:--</span>
+										</div>
+									</div>
+								</div>
+								<div class="left-lower">
+									<img class="letter-image" src="Pictures/letter.png" alt="Letter">
+								</div>
+							</div>
+							<div class="right-split" style="position:relative;">
+								<img class="lyrics-image" src="Pictures/lyrics.png" alt="Lyrics">
+								<img class="question-image" src="Pictures/question.png" alt="Question" />
+								<div class="question-buttons">
+									<button class="answer-btn yes-btn">Yes</button>
+									<button class="answer-btn no-btn" id="noBtn">No</button>
+								</div>
+							</div>
+						</div>
+					  </div>
+					  <audio id="valentineAudio" src="Audio/TheWayILoveYou.mp3"></audio>
+					`;
+					messageBox.classList.remove('fade-out');
+					messageBox.classList.add('fade-in');
+					setTimeout(function() {
+						messageBox.classList.remove('fade-in');
+						document.body.classList.remove('body-fade-in');
+						// Play the song from 1:32 (92 seconds)
+						var audio = document.getElementById('valentineAudio');
+						var progressBarFill = document.getElementById('progressBarFill');
+						var currentTimeSpan = document.getElementById('currentTime');
+						var durationSpan = document.getElementById('duration');
+						var SONG_LENGTH = 152; // 2:32 in seconds
+						if (audio) {
+							audio.currentTime = 92;
+							audio.play();
+							// Set duration to 2:32
+							durationSpan.textContent = '2:32';
+							// Update progress bar as song plays
+							audio.addEventListener('timeupdate', function() {
+								var cur = audio.currentTime;
+								// Progress bar
+								var percent = (cur / SONG_LENGTH) * 100;
+								if (percent < 0) percent = 0;
+								if (percent > 100) percent = 100;
+								progressBarFill.style.width = percent + '%';
+								// Time display
+								var min = Math.floor(cur / 60);
+								var sec = Math.floor(cur % 60).toString().padStart(2, '0');
+								currentTimeSpan.textContent = min + ':' + sec;
+							});
+							// Loop the song when it ends
+							audio.addEventListener('ended', function() {
+								audio.currentTime = 0;
+								audio.play();
+							});
+						}
+						// --- NO BUTTON RUNS AWAY LOGIC ---
+						var noBtn = document.getElementById('noBtn');
+						if (noBtn) {
+							let isRunning = false;
+							noBtn.addEventListener('mouseenter', function() {
+								if (!isRunning) {
+									// Switch to fixed positioning at current spot
+									const btnRect = noBtn.getBoundingClientRect();
+									noBtn.style.position = 'fixed';
+									noBtn.style.left = btnRect.left + 'px';
+									noBtn.style.top = btnRect.top + 'px';
+									noBtn.style.transform = 'none';
+									isRunning = true;
+								}
+								// Move to a random spot within the viewport
+								const btnWidth = noBtn.offsetWidth;
+								const btnHeight = noBtn.offsetHeight;
+								const maxLeft = window.innerWidth - btnWidth;
+								const maxTop = window.innerHeight - btnHeight;
+								let randLeft = Math.random() * maxLeft;
+								let randTop = Math.random() * maxTop;
+								randLeft = Math.min(Math.max(0, randLeft), maxLeft);
+								randTop = Math.min(Math.max(0, randTop), maxTop);
+								noBtn.style.left = randLeft + 'px';
+								noBtn.style.top = randTop + 'px';
+							});
+							// Prevent click
+							noBtn.addEventListener('click', function(e) {
+								e.preventDefault();
+								e.stopPropagation();
+							});
+						}
+						// --- END NO BUTTON LOGIC ---
+
+						// --- YES BUTTON SHOWS IMAGES LOGIC ---
+						var yesBtn = document.querySelector('.yes-btn');
+						if (yesBtn) {
+							yesBtn.addEventListener('click', function() {
+								var mainSplit = document.querySelector('.main-split-container');
+								if (mainSplit && !document.querySelector('.overlap-img-2')) {
+									// Left top edge
+									var img2 = document.createElement('img');
+									img2.src = 'Pictures/2.png';
+									img2.alt = '2';
+									img2.className = 'overlap-img overlap-img-2';
+									mainSplit.appendChild(img2);
+									// Right top edge
+									var img3 = document.createElement('img');
+									img3.src = 'Pictures/3.png';
+									img3.alt = '3';
+									img3.className = 'overlap-img overlap-img-3';
+									mainSplit.appendChild(img3);
+								}
+								if (mainSplit && !document.querySelector('.overlap-img-4')) {
+									// Left bottom edge
+									var img4 = document.createElement('img');
+									img4.src = 'Pictures/4.png';
+									img4.alt = '4';
+									img4.className = 'overlap-img overlap-img-4';
+									mainSplit.appendChild(img4);
+									// Right bottom edge
+									var img5 = document.createElement('img');
+									img5.src = 'Pictures/5.png';
+									img5.alt = '5';
+									img5.className = 'overlap-img overlap-img-5';
+									mainSplit.appendChild(img5);
+									// Left further bottom edge
+									var img6 = document.createElement('img');
+									img6.src = 'Pictures/6.png';
+									img6.alt = '6';
+									img6.className = 'overlap-img overlap-img-6';
+									mainSplit.appendChild(img6);
+									// Right further bottom edge
+									var img7 = document.createElement('img');
+									img7.src = 'Pictures/7.png';
+									img7.alt = '7';
+									img7.className = 'overlap-img overlap-img-7';
+									mainSplit.appendChild(img7);
+								}
+								// Center image: its a date.png
+								if (mainSplit && !document.querySelector('.overlap-img-center')) {
+									var imgCenter = document.createElement('img');
+									imgCenter.src = 'Pictures/its a date.png';
+									imgCenter.alt = "It's a date!";
+									imgCenter.className = 'overlap-img overlap-img-center';
+									mainSplit.appendChild(imgCenter);
+								}
+							}, { once: true });
+						}
+						// --- END YES BUTTON LOGIC ---
+					}, 500);
+				}, 500);
+				page = 3;
+			}
+		});
+	</script>
+</body>
+</html>
